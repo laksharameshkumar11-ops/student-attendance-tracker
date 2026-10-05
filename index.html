@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Attendance Tracker</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6fb;
+    color: #222;
+}
+
+.container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 40px auto;
+}
+
+header {
+    background: #4f46e5;
+    color: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+header h1 {
+    margin: 0 0 8px;
+}
+
+header p {
+    margin: 0;
+}
+
+/* Statistics */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.stat-card h3 {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.stat-card p {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 10px 0 0;
+}
+
+/* Main content */
+
+.content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.card h2 {
+    margin-top: 0;
+}
+
+/* Search */
+
+.search {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    margin-bottom: 15px;
+}
+
+/* Table */
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+th {
+    background: #f8f8f8;
+}
+
+/* Attendance percentage */
+
+.percentage {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.good {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.warning {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Buttons */
+
+button {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.present-btn {
+    background: #10b981;
+    color: white;
+}
+
+.absent-btn {
+    background: #ef4444;
+    color: white;
+}
+
+.add-btn {
+    width: 100%;
+    background: #4f46e5;
+    color: white;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+/* Form */
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+/* Low attendance */
+
+.low-student {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #fff1f2;
+    border-radius: 8px;
+}
+
+.no-low {
+    color: #15803d;
+    background: #dcfce7;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+/* Responsive */
+
+@media (max-width: 800px) {
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        width: 95%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>Student Attendance Tracker</h1>
+        <p>Record and monitor student attendance easily.</p>
+    </header>
+
+    <!-- Statistics -->
+
+    <div class="stats">
+
+        <div class="stat-card">
+            <h3>Total Students</h3>
+            <p id="totalStudents">0</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Present Today</h3>
+            <p id="presentToday">0</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Absent Today</h3>
+            <p id="absentToday">0</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Overall Attendance</h3>
+            <p id="overallAttendance">0%</p>
+        </div>
+
+    </div>
+
+    <div class="content">
+
+        <!-- Attendance Table -->
+
+        <div class="card">
+
+            <h2>Attendance Register</h2>
+
+            <input
+                type="text"
+                id="search"
+                class="search"
+                placeholder="Search student..."
+            >
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Present</th>
+                            <th>Absent</th>
+                            <th>Attendance</th>
+                            <th>Today</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="studentTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- Right Side -->
+
+        <div>
+
+            <!-- Add Student -->
+
+            <div class="card">
+
+                <h2>Add Student</h2>
+
+                <input
+                    type="text"
+                    id="studentName"
+                    placeholder="Student name"
+                >
+
+                <input
+                    type="number"
+                    id="presentCount"
+                    placeholder="Present days"
+                    min="0"
+                >
+
+                <input
+                    type="number"
+                    id="absentCount"
+                    placeholder="Absent days"
+                    min="0"
+                >
+
+                <button class="add-btn" onclick="addStudent()">
+                    + Add Student
+                </button>
+
+            </div>
+
+            <br>
+
+            <!-- Low Attendance -->
+
+            <div class="card">
+
+                <h2>Low Attendance</h2>
+
+                <div id="lowAttendance"></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let students = [
+
+    {
+        name: "Aarav Kumar",
+        present: 18,
+        absent: 2,
+        today: true
+    },
+
+    {
+        name: "Diya Sharma",
+        present: 15,
+        absent: 5,
+        today: true
+    },
+
+    {
+        name: "Rahul Singh",
+        present: 12,
+        absent: 8,
+        today: false
+    },
+
+    {
+        name: "Ananya Patel",
+        present: 19,
+        absent: 1,
+        today: true
+    },
+
+    {
+        name: "Vikram Rao",
+        present: 13,
+        absent: 7,
+        today: false
+    },
+
+    {
+        name: "Meera Iyer",
+        present: 17,
+        absent: 3,
+        today: true
+    }
+
+];
+
+
+/* Calculate percentage */
+
+function calculatePercentage(student) {
+
+    let total = student.present + student.absent;
+
+    if (total === 0) {
+        return 0;
+    }
+
+    return Math.round(
+        (student.present / total) * 100
+    );
+}
+
+
+/* Display students */
+
+function displayStudents() {
+
+    let table = document.getElementById("studentTable");
+
+    let searchText =
+        document.getElementById("search").value.toLowerCase();
+
+    table.innerHTML = "";
+
+    students.forEach((student, index) => {
+
+        if (
+            !student.name
+                .toLowerCase()
+                .includes(searchText)
+        ) {
+            return;
+        }
+
+        let percentage =
+            calculatePercentage(student);
+
+        let percentageClass;
+
+        if (percentage >= 85) {
+            percentageClass = "good";
+        }
+        else if (percentage >= 75) {
+            percentageClass = "warning";
+        }
+        else {
+            percentageClass = "danger";
+        }
+
+        let row = document.createElement("tr");
+
+        row.innerHTML = `
+
+            <td>
+                <strong>${student.name}</strong>
+            </td>
+
+            <td>
+                ${student.present}
+            </td>
+
+            <td>
+                ${student.absent}
+            </td>
+
+            <td>
+                <span class="percentage ${percentageClass}">
+                    ${percentage}%
+                </span>
+            </td>
+
+            <td>
+
+                <button
+                    class="${student.today
+                        ? "present-btn"
+                        : "absent-btn"}"
+                    onclick="toggleAttendance(${index})"
+                >
+
+                    ${student.today
+                        ? "Present"
+                        : "Absent"}
+
+                </button>
+
+            </td>
+        `;
+
+        table.appendChild(row);
+
+    });
+
+    updateStatistics();
+
+}
+
+
+/* Toggle today's attendance */
+
+function toggleAttendance(index) {
+
+    let student = students[index];
+
+    if (student.today) {
+
+        student.today = false;
+
+        student.present--;
+
+        student.absent++;
+
+    }
+    else {
+
+        student.today = true;
+
+        student.present++;
+
+        student.absent--;
+
+        if (student.absent < 0) {
+            student.absent = 0;
+        }
+
+    }
+
+    displayStudents();
+
+}
+
+
+/* Update statistics */
+
+function updateStatistics() {
+
+    let totalStudents =
+        students.length;
+
+    let presentToday =
+        students.filter(
+            student => student.today
+        ).length;
+
+    let absentToday =
+        totalStudents - presentToday;
+
+    let totalPresent =
+        students.reduce(
+            (sum, student) =>
+                sum + student.present,
+            0
+        );
+
+    let totalDays =
+        students.reduce(
+            (sum, student) =>
+                sum +
+                student.present +
+                student.absent,
+            0
+        );
+
+    let overall =
+        totalDays === 0
+            ? 0
+            : Math.round(
+                (totalPresent / totalDays) * 100
+            );
+
+    document.getElementById(
+        "totalStudents"
+    ).textContent = totalStudents;
+
+    document.getElementById(
+        "presentToday"
+    ).textContent = presentToday;
+
+    document.getElementById(
+        "absentToday"
+    ).textContent = absentToday;
+
+    document.getElementById(
+        "overallAttendance"
+    ).textContent = overall + "%";
+
+
+    updateLowAttendance();
+
+}
+
+
+/* Display low attendance students */
+
+function updateLowAttendance() {
+
+    let container =
+        document.getElementById(
+            "lowAttendance"
+        );
+
+    let lowStudents =
+        students.filter(
+            student =>
+                calculatePercentage(student) < 75
+        );
+
+    container.innerHTML = "";
+
+    if (lowStudents.length === 0) {
+
+        container.innerHTML = `
+            <div class="no-low">
+                All students have attendance
+                above 75%.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    lowStudents.forEach(student => {
+
+        let percentage =
+            calculatePercentage(student);
+
+        let div =
+            document.createElement("div");
+
+        div.className =
+            "low-student";
+
+        div.innerHTML = `
+
+            <strong>
+                ${student.name}
+            </strong>
+
+            <span>
+                ${percentage}%
+            </span>
+
+        `;
+
+        container.appendChild(div);
+
+    });
+
+}
+
+
+/* Add student */
+
+function addStudent() {
+
+    let name =
+        document.getElementById(
+            "studentName"
+        ).value.trim();
+
+    let present =
+        Number(
+            document.getElementById(
+                "presentCount"
+            ).value
+        ) || 0;
+
+    let absent =
+        Number(
+            document.getElementById(
+                "absentCount"
+            ).value
+        ) || 0;
+
+
+    if (name === "") {
+
+        alert("Please enter student name.");
+
+        return;
+    }
+
+
+    students.push({
+
+        name: name,
+
+        present: present,
+
+        absent: absent,
+
+        today: false
+
+    });
+
+
+    document.getElementById(
+        "studentName"
+    ).value = "";
+
+    document.getElementById(
+        "presentCount"
+    ).value = "";
+
+    document.getElementById(
+        "absentCount"
+    ).value = "";
+
+
+    displayStudents();
+
+}
+
+
+/* Search */
+
+document.getElementById(
+    "search"
+).addEventListener(
+    "input",
+    displayStudents
+);
+
+
+/* Initial display */
+
+displayStudents();
+
+</script>
+
+</body>
+</html>
